@@ -1,5 +1,6 @@
 // todo vísa í rétta hluti með import
-
+import * as storage from './storage';
+import * as helper from './helpers';
 /**
  * Reikna út stig fyrir svör út frá heildarfjölda svarað á tíma.
  * Ekki þarf að gera ráð fyrir hversu lengi seinasta spurning var sýnd. Þ.e.a.s.
@@ -13,6 +14,9 @@
  */
 export function score(total, correct, time) {
   // todo útfæra
+  if (correct === 0) { return 0; }
+  const number = ((((correct / total) ** 2) + correct) * total) / time;
+  return Math.round(number) * 100;
 }
 
 /**
@@ -31,6 +35,7 @@ export default class Highscore {
    */
   load() {
     // todo útfæra
+    this.highscore(storage.load());
   }
 
   /**
@@ -38,6 +43,13 @@ export default class Highscore {
    */
   clear() {
     // todo útfæra
+    storage.clear();
+    helper.empty(this.scores);
+
+    const p = helper.el('p', 'Engin stig skráð');
+    this.scores.appendChild(p);
+
+    this.button.classList.add('highscore__button--hidden');
   }
 
   /**
@@ -47,5 +59,24 @@ export default class Highscore {
    */
   highscore(data) {
     // todo útfæra
+    if (data.length <= 0) {
+      return;
+    }
+
+    helper.empty(this.scores);
+    this.button.classList.remove('highscore__button--hidden');
+
+    const ol = helper.el('ol');
+    this.scores.appendChild(ol);
+    data.forEach((stig) => {
+      const li = helper.el('li');
+      const numberItem = helper.el('span', `${stig.points}`);
+      numberItem.classList.add('highscore__number');
+      const nameItem = helper.el('span', `${stig.name}`);
+      numberItem.classList.add('highscore__name');
+      li.appendChild(numberItem);
+      li.appendChild(nameItem);
+      ol.appendChild(li);
+    });
   }
 }
